@@ -8,11 +8,23 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+
+import static pl.devzyra.spring_security.config.UserRole.ADMIN;
+import static pl.devzyra.spring_security.config.UserRole.STUDENT;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+
+    private final PasswordEncoder passwordEncoder;
+
+    public SecurityConfig(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -31,11 +43,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public UserDetailsService userDetailsServiceBean() throws Exception {
         UserDetails samKnightUser = User.builder()
                 .username("samknight")
-                .password("password")
-                .roles("STUDENT") // ROLE_STUDENT
+                .password(passwordEncoder.encode("password"))
+                .roles(STUDENT.name()) // ROLE_STUDENT
                 .build();
 
-      return new InMemoryUserDetailsManager( samKnightUser );
+        UserDetails adminUser = User.builder()
+                .username("admin")
+                .password(passwordEncoder.encode("password123"))
+                .roles(ADMIN.name())
+                .build();
+
+        return new InMemoryUserDetailsManager( samKnightUser, adminUser );
     }
 
 }
