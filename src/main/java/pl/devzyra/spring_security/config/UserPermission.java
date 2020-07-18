@@ -1,6 +1,9 @@
 package pl.devzyra.spring_security.config;
 
 import lombok.Getter;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Set;
 
 @Getter
 public enum UserPermission {
@@ -14,4 +17,6 @@ public enum UserPermission {
     UserPermission(String permission) {
         this.permission = permission;
     }
+
+
 }
