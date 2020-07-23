@@ -7,8 +7,11 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.devzyra.spring_security.auth.AppUserDetailsService;
+import pl.devzyra.spring_security.jwt.JwtTokenVerifier;
+import pl.devzyra.spring_security.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,26 +37,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
              /*   .csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()      */
                 .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(authenticationManager()))
+                .addFilterAfter(new JwtTokenVerifier(),JwtUsernameAndPasswordAuthenticationFilter.class)
+                .userDetailsService(userDetailsService)
                 .authorizeRequests()
                 .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
                 .antMatchers("/api/**").hasRole(STUDENT.name())
                 .anyRequest()
-                .authenticated()
-                .and()
+                .authenticated();
+
+             /*   .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .defaultSuccessUrl("/courses",true)
                 .and()
                 .rememberMe().tokenValiditySeconds((int) TimeUnit.DAYS.toSeconds(21))
                 .key("SomeKeyThatIsUsedToHashRememberCookieUsernameAndExpirationDate")
-                .userDetailsService(userDetailsServiceBean())
+                .userDetailsService(userDetailsService)
                 .and()
                 .logout()
                     .logoutUrl("/logout")
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID","remember-me")
-                    .logoutSuccessUrl("/");
+                    .logoutSuccessUrl("/");*/
     }
 
 
@@ -62,8 +71,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(daoAuthenticationProvider());
     }
 
-    @Bean
-  public DaoAuthenticationProvider daoAuthenticationProvider(){
+        @Bean
+     public DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setPasswordEncoder(passwordEncoder);
         provider.setUserDetailsService(userDetailsService);

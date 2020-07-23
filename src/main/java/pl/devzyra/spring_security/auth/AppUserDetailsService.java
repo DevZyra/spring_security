@@ -1,5 +1,6 @@
 package pl.devzyra.spring_security.auth;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,6 +12,7 @@ public class AppUserDetailsService implements UserDetailsService {
 
     private final AppUserDao appUserDao;
 
+    @Autowired
     public AppUserDetailsService(@Qualifier("fake") AppUserDao appUserDao) {
         this.appUserDao = appUserDao;
     }
